@@ -4,6 +4,10 @@ A page to upload videos to s3 for processing written in React
 # install
 ```npm install```
 
+# setup
+#### Configure AWS
+create a s3 bucket
+
 # running
 #### start the server
 `npm start`
