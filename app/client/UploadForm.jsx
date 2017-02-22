@@ -32,13 +32,11 @@ class UploadForm extends React.Component {
   }
 
   fileChanged(event) {
-    console.log("fileChanged", event);
     this.state.file = event.target.files[0];
   }
 
   handleSubmit(event) {
     event.preventDefault();
-    console.log("Submitting");
 
     if(this.state.file == null){
       return alert('No file selected.');
@@ -69,18 +67,14 @@ class UploadForm extends React.Component {
   }
 
   uploadFileToS3(file, signedRequest, url) {
-    console.log("Signedrequest: ", signedRequest);
-    console.log("url: ", url);
     const xhr = new XMLHttpRequest();
     xhr.open('PUT', signedRequest);
     xhr.onreadystatechange = () => {
       if(xhr.readyState === 4){
         if(xhr.status === 200){
           document.getElementById('preview').src = url;
-          // document.getElementById('avatar-url').value = url;
         }
         else{
-          console.log("s3 error",  xhr.responseText);
           alert('Could not upload file to s3.');
         }
       }

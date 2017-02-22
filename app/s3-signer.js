@@ -1,16 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const aws = require('aws-sdk');
-const AWS = require('aws-sdk');
 
 router.get('/sign', (req, res) => {
-  AWS.config.update({region: 'us-west-2'});
+  // need to specify the region of my bucket
+  aws.config.update({region: 'us-west-2'});
   const s3 = new aws.S3();
-  s3.config.region = 'us-west-2';
   const fileName = req.query['file-name'];
   const fileType = req.query['file-type'];
 
-  console.log("Calling s3sign with request:", {fileName: fileName, fileType: fileType});
   s3.config.region = 'us-west-2';
 
   const s3Params = {
