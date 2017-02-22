@@ -2,26 +2,90 @@ import React from 'react';
 import {render} from 'react-dom';
 
 class UploadForm extends React.Component {
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      file: 'Test'
+    };
+
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.fileChanged = this.fileChanged.bind(this);
+  }
+
   render() {
     return (
       <div>
-        <form action='https://s3-bucket.s3.amazonaws.com/' method='post' encType='multipart/form-data'>
-          <input type="hidden" name="key" value="" />
-          <input type="hidden" name="AWSAccessKeyId" value="YOUR_AWS_ACCESS_KEY" />
-          <input type="hidden" name="acl" value="private" />
-          <input type="hidden" name="success_action_redirect" value="http://localhost/" />
-          <input type="hidden" name="policy" value="YOUR_POLICY_DOCUMENT_BASE64_ENCODED" />
-          <input type="hidden" name="signature" value="YOUR_CALCULATED_SIGNATURE" />
-          <input type="hidden" name="Content-Type" value="image/jpeg" />
+        <img id="preview" src=""/>
+        <form action='https://s3-bucket.s3.amazonaws.com/'
+              method='post'
+              encType='multipart/form-data'
+              onSubmit={this.handleSubmit}>
 
           File to upload to S3:
-          <input name="file" type="file" />
+          <input name="file" type="file" onChange={this.fileChanged}/>
           <br />
           <input type="submit" value="Upload File to S3" />
-
         </form>
       </div>
     );
+  }
+
+  fileChanged(event) {
+    console.log("fileChanged", event);
+    this.state.file = event.target.files[0];
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+    console.log("Submitting");
+
+    if(this.state.file == null){
+      return alert('No file selected.');
+    }
+
+    this.getSignedRequest(this.state.file);
+    return false;
+  }
+
+  getSignedRequest(file) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', `/s3/sign?file-name=${file.name}&file-type=${file.type}`);
+    xhr.onreadystatechange = () => {
+      if(xhr.readyState === 4){
+        if(xhr.status === 200){
+          console.log("Got signed response success:", xhr.responseText);
+          const response = JSON.parse(xhr.responseText);
+          this.uploadFileToS3(file, response.signedRequest, response.url);
+        }
+        else{
+          console.log("Error", xhr);
+          alert('Could not get signed URL.');
+        }
+      }
+    };
+
+    xhr.send();
+  }
+
+  uploadFileToS3(file, signedRequest, url) {
+    console.log("Signedrequest: ", signedRequest);
+    console.log("url: ", url);
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', signedRequest);
+    xhr.onreadystatechange = () => {
+      if(xhr.readyState === 4){
+        if(xhr.status === 200){
+          document.getElementById('preview').src = url;
+          // document.getElementById('avatar-url').value = url;
+        }
+        else{
+          console.log("s3 error",  xhr.responseText);
+          alert('Could not upload file to s3.');
+        }
+      }
+    };
+    xhr.send(file);
   }
 }
 

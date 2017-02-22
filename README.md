@@ -8,6 +8,10 @@ A page to upload videos to s3 for processing written in React
 #### Configure AWS
 create a s3 bucket
 
+#### configure your environment variables for AWS
+```export AWS_ACCESS_KEY_ID="YOUR ACCESS KEY ID"```
+```export AWS_SECRET_ACCESS_KEY="6BY9wMIYZuexbH3mo0JG0W7JSx7qP01m73F5UMst"```
+
 # running
 #### start the server
 `npm start`
